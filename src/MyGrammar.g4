@@ -1,8 +1,10 @@
 grammar MyGrammar;
+prog: block ;
 
-prog: ( stat? NEWLINE )* ;
+block: ( stat? NEWLINE )* ;
 
-stat:   ID '=' expression		#assign
+stat:   REPEAT repetitions block ENDREPEAT   #repeat
+    |   ID '=' expression		#assign
 	|   PRINT ID   		        #print
     |   READ ID   		        #read
 
@@ -16,6 +18,24 @@ expression
     | expression ADD expression         #addExpression
     ;
 
+repetitions
+    : repeatValue
+    ;
+
+repeatValue
+    : ID
+    | INT
+    ;
+
+function: FUNCTION fparam fblock ENDFUNCTION
+;
+
+fparam: ID
+;
+
+fblock: ( stat? NEWLINE )*
+;
+
 value
     : '(' expression ')'                #parensExpression
         | TOINT value		            #toint
@@ -28,14 +48,28 @@ value
 PRINT    : 'drukuj' ;
 READ:	'czytaj' ;
 
+REPEAT: 'powtorz'   ;
+
+ENDREPEAT: 'koniecpowtorz';
+
+FUNCTION: 'funkcja'
+;
+
+ENDFUNCTION:	'koniecfunkcja'
+;
+
 TOINT: '(int)'
     ;
 
 TOREAL: '(real)'
     ;
+
+    STRING :  '"' ( ~('\\'|'"') )* '"';
+
     ID       : ('a'..'z'|'A'..'Z')+ ;
 
     REAL     : '0'..'9'+'.''0'..'9'+ ;
+
     INT      : ('0'..'9')+ ;
 
 MULTIPLY : '*' ;

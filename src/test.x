@@ -1,4 +1,6 @@
-x = 4.0
-czytaj k
-z = 2.0+1
-drukuj z
+czytaj a
+powtorz 3
+  powtorz a
+   drukuj a
+  koniecpowtorz
+koniecpowtorz

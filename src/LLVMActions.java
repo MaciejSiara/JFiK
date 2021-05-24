@@ -17,6 +17,43 @@ public class LLVMActions extends MyGrammarBaseListener {
 
     HashMap<String, VarType> variables = new HashMap<String, VarType>();
     Stack<Value> stack = new Stack<Value>();
+    String value;
+
+    @Override
+    public void exitProg(MyGrammarParser.ProgContext ctx) {
+        System.out.println( LLVMGenerator.generate() );
+    }
+
+    @Override
+    public void exitBlock(MyGrammarParser.BlockContext ctx) {
+        if( ctx.getParent() instanceof MyGrammarParser.RepeatContext ){
+            LLVMGenerator.repeatend();
+        }
+    }
+
+    // LOOP
+    @Override
+    public void exitRepeatValue(MyGrammarParser.RepeatValueContext ctx) {
+        if( ctx.ID() != null ){
+            String ID = ctx.ID().getText();
+            if( variables.containsKey(ID) ) {
+                LLVMGenerator.load_i32( ID );
+                value = "%"+(LLVMGenerator.reg-1);
+            } else {
+                error(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), "unknown variable "+ID);
+            }
+        }else if( ctx.INT() != null ){
+            value = ctx.INT().getText();
+        } else {
+            error(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), "Bledna wartosc ilosci iteracji petli");
+        }
+    }
+
+    @Override
+    public void exitRepetitions(MyGrammarParser.RepetitionsContext ctx) {
+        LLVMGenerator.repeatstart(value);
+    }
+
 
     @Override
     public void exitAssign(MyGrammarParser.AssignContext ctx) {
@@ -31,11 +68,6 @@ public class LLVMActions extends MyGrammarBaseListener {
             LLVMGenerator.declare_double(ID);
             LLVMGenerator.assign_double(ID, v.name);
         }
-    }
-
-    @Override
-    public void exitProg(MyGrammarParser.ProgContext ctx) {
-        System.out.println( LLVMGenerator.generate() );
     }
 
     @Override
